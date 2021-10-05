@@ -1,6 +1,5 @@
 'use strict';
 
-
 const fs = require('fs');
 const dataPath = 'src/Lab1/Data.json';
 const inputData = JSON.parse(fs.readFileSync(dataPath, 'utf-8'));
@@ -34,9 +33,12 @@ const allConflicts = (graph) => {
 
 let iterations = 0;
 let sideSteps = 0;
+let stateCounter = 0;
+let deadLocks = 0;
 
 const hillClimbing = (graph, colors) => {
   graph.fillRandom(colors);
+  stateCounter++;
   console.log('Initial colors:');
   console.log(graph.colors);
   let localMinimum = false;
@@ -61,7 +63,7 @@ const hillClimbing = (graph, colors) => {
             newColor = color;
             localMinimum = false;
 
-            if(newConflicts === oldConflicts) continue;
+            if (newConflicts === oldConflicts) continue;
 
             found = true;
             break;
@@ -69,15 +71,17 @@ const hillClimbing = (graph, colors) => {
         }
       }
 
-      const all = allConflicts(graph);
       if (found) {
+        stateCounter++;
         vertex.color = newColor;
         break;
       }
-      if(newColor !== undefined) {
+
+      if (newColor !== undefined) {
+        stateCounter++;
         vertex.color = newColor;
         sideSteps++;
-        if(sideSteps === 100) {
+        if (sideSteps === 100) {
           console.log('Resulting colors:');
           console.log(graph.colors);
           return allConflicts(graph);
@@ -93,8 +97,11 @@ const hillClimbing = (graph, colors) => {
 
 const countryGraph = new ColorGraph(countryMatrix);
 
-console.log('ResConflicts: ' + hillClimbing(countryGraph, COLORS));
-console.dir({ iterations, sideSteps });
-console.log(
-  'Memory used (MB): ' + Math.floor(process.memoryUsage().rss / 1024 / 1024)
-);
+let res;
+for (let i = 0; i < 5; i++) {
+  res = hillClimbing(countryGraph, COLORS);
+  if (res === 0) break;
+  deadLocks++;
+}
+console.log('ResConflicts: ' + res);
+console.dir({ iterations, sideSteps, stateCounter, deadLocks });

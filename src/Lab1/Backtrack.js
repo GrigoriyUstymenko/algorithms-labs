@@ -29,10 +29,12 @@ const selectUncolored = (graph, colors) => {
   return MRVsorted[0];
 };
 
-let counter = 0;
+let iterations = 0;
+let stateCounter = 0;
+let deadLocks = 0;
 
 const recBacktrack = (graph, colors, firstIteration = false) => {
-  counter++;
+  iterations++;
   if (graph.isColored()) return graph.colors;
 
   const nextVertex = firstIteration
@@ -41,11 +43,13 @@ const recBacktrack = (graph, colors, firstIteration = false) => {
 
   for (const color of colors) {
     if (graph.canColor(nextVertex, color)) {
+      stateCounter++;
       nextVertex.color = color;
       if (recBacktrack(graph, colors)) return graph.colors;
     }
   }
   nextVertex.color = 'none';
+  deadLocks++;
   return false;
 };
 
@@ -56,14 +60,5 @@ const backtrack = (graph, colors) => {
 };
 
 const countryGraph = new ColorGraph(countryMatrix);
-const counters = [];
-for (let i = 0; i < 20; i++) {
-  backtrack(countryGraph, COLORS);
-  counters.push(counter);
-  counter = 0;
-}
 console.log(backtrack(countryGraph, COLORS));
-console.log(counters);
-console.log(
-  'Memory used (MB): ' + Math.floor(process.memoryUsage().rss / 1024 / 1024)
-);
+console.dir({ iterations, stateCounter, deadLocks });

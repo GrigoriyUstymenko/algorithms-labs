@@ -33,7 +33,7 @@ class ColorGraph {
   }
 
   fillRandom(colors) {
-    for(const v of this.vertices){
+    for (const v of this.vertices) {
       v.color = colors[Math.floor(Math.random() * colors.length)];
     }
   }
